@@ -9,7 +9,8 @@ module Legacy
     DONT_UPDATE_MADELINE_IDS = [1577]
 
     def self.migrate_all
-      puts "members: #{ self.count }"
+      puts "---------------------------------------------------------"
+      puts "Members: #{ self.count }"
       all.find_each(&:migrate)
     end
 
