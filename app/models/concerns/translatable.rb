@@ -2,7 +2,7 @@ module Translatable
   extend ActiveSupport::Concern
 
   included do
-    has_many :translations, as: :translatable, autosave: true
+    has_many :translations, as: :translatable, autosave: true, dependent: :destroy
     accepts_nested_attributes_for :translations
   end
 
@@ -190,11 +190,11 @@ module Translatable
       # Ensure at least one translation given is not blank
       translations = record.send("#{attribute}_translations")
 
-      empty_translations = translations.map do |translation| 
+      empty_translations = translations.map do |translation|
         return if translation.text.present?;
         translation
       end
-    
+
       empty_translations.each do |translation|
         record.errors.add("#{attribute}_#{translation.locale}", :blank)
       end

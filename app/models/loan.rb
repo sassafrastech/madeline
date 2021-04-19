@@ -65,6 +65,7 @@ class Loan < Project
   has_one :criteria, -> { where("response_sets.kind" => 'criteria') }, class_name: "ResponseSet"
   has_one :post_analysis, -> { where("response_sets.kind" => 'post_analysis') }, class_name: "ResponseSet"
   has_one :health_check, class_name: "LoanHealthCheck", foreign_key: :loan_id, dependent: :destroy
+  has_many :response_sets, dependent: :destroy
 
   scope :status, ->(status) { where(status_value: status) }
   scope :active, -> { status("active") }
