@@ -22,13 +22,13 @@ class Member < ApplicationRecord
         id: self.id,
         division_id: division.id,
         primary_organization_id: cooperative_id,
-        first_name: first_name.try(:strip),
-        last_name: last_name.try(:strip),
+        first_name: first_name&.strip.presence,
+        last_name: last_name&.strip.presence,
         name: "#{first_name} #{last_name}",
         primary_phone: phone,
-        street_address: address.try(:strip),
-        city: city.try(:strip),
-        country_id: Country.find_by(name: self.country.try(:strip)).try(:id),
+        street_address: address&.strip.presence,
+        city: city&.strip.presence,
+        country_id: Country.find_by(name: self.country&.strip.presence).try(:id),
         tax_no: national_id,
     }
     if access_status > 0 && password.present? && username.present?
