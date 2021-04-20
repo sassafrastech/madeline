@@ -52,7 +52,6 @@ class Loan < Project
   include MediaAttachable
 
   QUESTION_SET_TYPES = %i(criteria post_analysis)
-  DEFAULT_STEP_NAME = '[default]'
   STATUS_ACTIVE_VALUE = 'active'
   STATUS_COMPLETED_VALUE = 'completed'
   TXN_MODES = %i(automatic read_only)
