@@ -29,14 +29,6 @@ module LegacyModel
       @id_map ||= {}
     end
 
-    def skip_log
-      @skip_log ||= []
-    end
-
-    def unexpected_errors
-      @skip_log ||= []
-    end
-
     def migratable
       all
     end

@@ -16,6 +16,11 @@ namespace :tww do
       loan_ids = Legacy::Loan.where(source_division: DIV_IDS).pluck(:id)
       Legacy::ProjectEvent.where(project_id: loan_ids).migrate_all
 
+      puts "Skip Log:"
+      Legacy::Migration.skip_log.each { |line| puts line.join(",") }
+      puts "Unexpected Errors:"
+      Legacy::Migration.unexpected_errors.each { |line| puts line }
+
       unless ENV["DONT_ROLLBACK"]
         puts "Rolling back"
         raise ActiveRecord::Rollback, "Completed successfully"

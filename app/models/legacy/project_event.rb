@@ -6,26 +6,18 @@ module Legacy
     establish_connection :legacy
     include LegacyModel
 
-    NULLIFY_MEMBER_IDS = [0, 247]
-
-    def self.migratable
-      # Don't migrate Finalized = -1 per Brendan 11/9/16
-      where("Type = 'Paso' and Finalized > -1")
-        .where(project_table: 'loans')
-        .where(milestone_group: nil) # All Argentina steps have milestone_group NULL
-    end
+    NULLIFY_MEMBER_IDS = [0, 274]
 
     # note, legacy data includes 11 references to a '0' member_id, and a bunch to 247 which doesn't exist
     def agent_id
       if NULLIFY_MEMBER_IDS.include?(member_id)
+        Migration.skip_log << ["ProjectEvent", id, "Nullified agent_id b/c member #{member_id} not found"]
         nil
       else
         if Person.where(id: Member.id_map[member_id]).any?
           Member.id_map[member_id]
         else
-          puts '**************************************************************************'
-          puts "WARNING: Person not found for MemberId: #{member_id} on Step #{id}"
-          puts '**************************************************************************'
+          Migration.unexpected_errors << "Person not found for MemberId: #{member_id} on Step #{id}"
           nil
         end
       end
@@ -35,9 +27,7 @@ module Legacy
       if ::Loan.where(id: project_id).exists?
         project_id
       else
-        puts '**************************************************************************'
-        puts "WARNING: Loan #{project_id} not found on Step #{id}"
-        puts '**************************************************************************'
+        Migration.unexpected_errors << "Loan #{project_id} not found on Step #{id}"
         nil
       end
     end
@@ -58,6 +48,18 @@ module Legacy
     end
 
     def migrate
+      if project_table.downcase != 'loans'
+        Migration.skip_log << ["ProjectEvent", id, "Not migrating ProjectTable = #{project_table}"]
+        return
+      end
+      if finalized <= -1
+        Migration.skip_log << ["ProjectEvent", id, "Not migrating if Finalized = #{finalized}"]
+        return
+      end
+      if type != "Paso"
+        Migration.skip_log << ["ProjectEvent", id, "Not migrating event Type = '#{type}'"]
+        return
+      end
       data = migration_data
       pp data
       step = ::ProjectStep.create!(data)

@@ -65,42 +65,23 @@ module Legacy
     def migrate
       data = migration_data
       if LOANS_WITH_NO_COOP.include?(data[:id])
-        puts "skpping loan #{data[:id]} b/c no coop"
+        Migration.skip_log << ["Loan", data[:id], "No coop"]
         return
       end
       if LOANS_WITH_NO_LOAN_TYPE.include?(data[:id])
-        puts "skpping loan #{data[:id]} b/c no loan type"
+        Migration.skip_log << ["Loan", data[:id], "No loan type"]
         return
       end
       pp data
       if ::Loan.find_by(id: data[:id])
-        puts '**************************************************************************'
-        puts "Loan #{data[:id]} exists!"
-        puts '**************************************************************************'
+        Migration.unexpected_errors << "Loan #{data[:id]} exists!"
       else
         begin
           ::Loan.create!(data)
         rescue StandardError => e
-          puts '**************************************************************************'
-          puts e
-          puts '**************************************************************************'
+          Migration.unexpected_errors << e.to_s
         end
       end
-    end
-
-    def migrate_snapshot_data
-      data = org_snapshot_data
-      new_record = ::Loan.find(migration_data[:id])
-      if data.values.any?(&:present?)
-        new_record.create_criteria unless new_record.criteria
-        data.each do |key, val|
-          question = new_record.criteria.question(key)
-          new_record.criteria.set_response(question, number: val)
-        end
-        new_record.criteria.save!
-      end
-    rescue StandardError => e
-      $stderr.puts "#{self.class.name}[#{id}] error migrating organization snapshot data: #{e} - skipping"
     end
 
     def name
@@ -114,9 +95,7 @@ module Legacy
     def status_option_value
       value = MIGRATION_STATUS_OPTIONS.value_for(nivel)
       if value.nil?
-        puts '**************************************************************************'
-        puts "WARNING: No matching status_value found for #{nivel}"
-        puts '**************************************************************************'
+        Migration.unexpected_errors << "No matching status_value found for #{nivel}"
       end
       value
     end
@@ -124,9 +103,7 @@ module Legacy
     def loan_type_option_value
       value = ::Loan.loan_type_option_set.value_for_migration_id(loan_type)
       if value.nil?
-        puts '**************************************************************************'
-        puts "WARNING: No matching loan_type_value found for #{loan_type}"
-        puts '**************************************************************************'
+        Migration.unexpected_errors << "No matching loan_type_value found for #{loan_type}"
       end
       value
     end
@@ -135,9 +112,7 @@ module Legacy
       # Default to Hidden if no value given in old DB
       value = PUBLIC_LEVEL_OPTIONS.value_for(nivel_publico) || "Hidden"
       if value.nil?
-        puts '**************************************************************************'
-        puts "WARNING: No matching public_level_value found for #{nivel_publico}"
-        puts '**************************************************************************'
+        Migration.unexpected_errors << "No matching public_level_value found for #{nivel_publico}"
       end
       value
     end
