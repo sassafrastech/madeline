@@ -25,11 +25,26 @@ module LegacyModel
   end
 
   module ClassMethods
-
-    def malformed_date_clause(field)
-      " not (#{field} is not null and dayofmonth(#{field}) = 0 and month(#{field}) > 0)"
+    def id_map
+      @id_map ||= {}
     end
 
-  end
+    def skip_log
+      @skip_log ||= []
+    end
 
+    def unexpected_errors
+      @skip_log ||= []
+    end
+
+    def migratable
+      all
+    end
+
+    def migrate_all
+      puts "---------------------------------------------------------"
+      puts "#{self.class.name}: #{migratable.count}"
+      migratable.find_each(&:migrate)
+    end
+  end
 end

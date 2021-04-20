@@ -11,12 +11,6 @@ module Legacy
     belongs_to :cooperative, :foreign_key => 'CooperativeID'
     belongs_to :division, :foreign_key => 'SourceDivision'
 
-    def self.migrate_all
-      puts "---------------------------------------------------------"
-      puts "Loans: #{self.count}"
-      all.each(&:migrate)
-    end
-
     def currency
       @currency ||= division.ensure_country.default_currency
     end

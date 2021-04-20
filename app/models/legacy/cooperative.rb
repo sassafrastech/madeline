@@ -4,16 +4,6 @@ module Legacy
     establish_connection :legacy
     include LegacyModel
 
-    def self.migrate_all
-      puts "---------------------------------------------------------"
-      puts "Cooperatives: #{count}"
-      all.find_each(&:migrate)
-    end
-
-    # def verbose_name
-    #   @verbose_name ||= (self.name =~ /#{I18n.t :cooperative}/i) ? self.name : I18n.t(:cooperative_name, name: self.name)
-    # end
-
     def division
       Legacy::Division.from_country(self.country)
     end

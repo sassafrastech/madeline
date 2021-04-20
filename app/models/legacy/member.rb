@@ -6,17 +6,7 @@ module Legacy
 
     belongs_to :cooperative, foreign_key: 'CooperativeID'
 
-    DONT_UPDATE_MADELINE_IDS = [1577]
-
-    def self.migrate_all
-      puts "---------------------------------------------------------"
-      puts "Members: #{ self.count }"
-      all.find_each(&:migrate)
-    end
-
-    def self.id_map
-      @id_map ||= {}
-    end
+    DONT_UPDATE_MADELINE_IDS = [2, 1577]
 
     def division
       if username == 'brendan'
