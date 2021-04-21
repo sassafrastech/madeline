@@ -2,30 +2,31 @@
 #
 # Table name: people
 #
+#  id                      :integer          not null, primary key
 #  birth_date              :date
 #  city                    :string
 #  contact_notes           :text
-#  country_id              :integer
-#  created_at              :datetime         not null
-#  division_id             :integer
 #  email                   :string
 #  fax                     :string
 #  first_name              :string
 #  has_system_access       :boolean          default(FALSE), not null
-#  id                      :integer          not null, primary key
 #  last_name               :string
 #  legal_name              :string
 #  name                    :string
 #  neighborhood            :string
 #  postal_code             :string
-#  primary_organization_id :integer
 #  primary_phone           :string
 #  secondary_phone         :string
 #  state                   :string
 #  street_address          :text
 #  tax_no                  :string
-#  updated_at              :datetime         not null
 #  website                 :string
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  country_id              :integer
+#  division_id             :integer
+#  legacy_id               :integer
+#  primary_organization_id :integer
 #
 # Indexes
 #
