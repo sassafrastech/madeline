@@ -35,7 +35,7 @@ module LegacyModel
 
     def migrate_all
       puts "---------------------------------------------------------"
-      puts "#{self.class.name}: #{migratable.count}"
+      puts "#{name}: #{migratable.count}"
       migratable.find_each(&:migrate)
     end
   end
