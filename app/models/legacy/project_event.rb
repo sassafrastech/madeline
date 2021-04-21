@@ -8,6 +8,10 @@ module Legacy
 
     NULLIFY_MEMBER_IDS = [0, 274]
 
+    def self.migratable
+      where("ProjectTable NOT IN ('BasicProjects', 'ProjectTemplates')")
+    end
+
     # note, legacy data includes 11 references to a '0' member_id, and a bunch to 247 which doesn't exist
     def agent_id
       if NULLIFY_MEMBER_IDS.include?(member_id)
@@ -49,15 +53,15 @@ module Legacy
 
     def migrate
       if project_table.downcase != 'loans'
-        Migration.skip_log << ["ProjectEvent", id, "Not migrating ProjectTable = #{project_table}"]
+        Migration.skip_log << ["ProjectEvent", id, "Not migrating b/c ProjectTable = #{project_table}"]
         return
       end
       if finalized <= -1
-        Migration.skip_log << ["ProjectEvent", id, "Not migrating if Finalized = #{finalized}"]
+        Migration.skip_log << ["ProjectEvent", id, "Not migrating b/c Finalized = #{finalized}"]
         return
       end
       if type != "Paso"
-        Migration.skip_log << ["ProjectEvent", id, "Not migrating event Type = '#{type}'"]
+        Migration.skip_log << ["ProjectEvent", id, "Not migrating b/c Type = '#{type}'"]
         return
       end
       data = migration_data
