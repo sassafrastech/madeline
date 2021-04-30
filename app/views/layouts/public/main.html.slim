@@ -9,32 +9,16 @@ html lang="en-US"
     meta charset="UTF-8"
     title
       = yield :title
-      = ' - Madeline'
     meta name="viewport" content="width=device-width, initial-scale=1.0"
     = csrf_meta_tags
     = javascript_include_tag "base"
-    = javascript_include_tag "admin_base"
     = javascript_include_tag "application"
-    = javascript_include_tag "admin"
     = yield :per_page_js
 
-    javascript:
-      I18n.availableLocales = #{json I18n.available_locales};
-      $(function() {
-        new MS.Views.ApplicationView({
-          dateFormats: #{json(I18n.t("date.moment_formats"))},
-          locale: #{json(I18n.locale)}
-        });
-      });
-
     = stylesheet_link_tag "application", media: "all"
-    = stylesheet_link_tag "admin", media: "all"
-    - google_fonts_url = "https://fonts.googleapis.com/css?family=Asap:400i,700i|Open+Sans:400,600"
-    = stylesheet_link_tag google_fonts_url, media: "all"
-    = render("layouts/shared/custom_colors") if admin_controller?
+    = render("layouts/shared/custom_colors")
 
-  body class="#{admin_controller? ? 'admin' : ''}
-              #{params[:controller].gsub('/', '-')}
+  body class="#{params[:controller].gsub('/', '-')}
               action-#{params[:action]}
               #{devise_controller? ? 'devise' : ''}
               #{@print_view ? 'print-view' : ''}"

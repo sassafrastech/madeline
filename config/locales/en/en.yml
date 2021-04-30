@@ -34,6 +34,7 @@ en:
         parent: "Parent Division"
         notify_on_new_logs: "Notify on New Logs"
         public: "Public"
+        public_url: "Public URL"
         logo: "Logo"
         logo_text: "Logo Text"
         banner_fg_color: "Banner FG Color"

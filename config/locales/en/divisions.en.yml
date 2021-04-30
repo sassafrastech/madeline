@@ -18,3 +18,4 @@ en:
       form:
         notify_on_new_logs: "Notify users in this division when a new log is created"
         public: "Show this division's loans on the public website"
+        public_url_info: "To change this division's public url, please update this division's Short Name above. The short name is the last portion of the url."

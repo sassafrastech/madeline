@@ -1,15 +1,21 @@
 class LoanPolicy < ProjectPolicy
   def show?
-    user ? super : scope.where(id: record.id).exists?
-  end
-
-  def gallery?
-    show?
+    if user # madeline, so use divisionowned
+      super
+    else # public pages, so don't use divisionowned
+      record.public_level_value != "hidden" &&
+        %w(active completed).include?(record.status_value) &&
+        record.division.public
+    end
   end
 
   class Scope < DivisionOwnedScope
     def resolve
-      user ? super : publicly_visible(scope)
+      if user # madeline, so use divisionowned
+        super
+      else # public pages, so don't use divisionowned
+        publicly_visible(scope)
+      end
     end
 
     def publicly_visible(scope)

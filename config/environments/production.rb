@@ -88,18 +88,4 @@ Rails.application.configure do
     authentication: 'plain',
     enable_starttls_auto: true,
   }
-
-  # For wordpress template
-  config.x.wordpress_template = {
-    base_uri: {
-      us: 'https://theworkingworld.org',
-      argentina: 'https://labase.org',
-      nicaragua: 'https://labase.org',
-    },
-    template_paths: { # url of blank wordpress page for rails to retrieve
-      us: '/us/rails',
-      argentina: '/argentina/rails',
-      nicaragua: '/nicaragua/rails',
-    }
-  }
 end

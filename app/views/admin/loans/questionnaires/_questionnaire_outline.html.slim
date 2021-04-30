@@ -6,8 +6,8 @@
     li class="#{ has_children ? "" : "leaf"}"
       div class="outline-item"
         - if has_children
-          = fa_icon("caret-right", class: "expansion-control custom_dark_accent ", data: {expands:"outline#{q.id}"})
-          = fa_icon("caret-down", class: "expansion-control custom_dark_accent", data: {hides:"outline#{q.id}"})
+          = fa_icon("caret-right", class: "expansion-control custom-dark-accent ", data: {expands:"outline#{q.id}"})
+          = fa_icon("caret-down", class: "expansion-control custom-dark-accent", data: {hides:"outline#{q.id}"})
         = link_to "#{q.full_number_and_label}", {}, class: "deep-link", data: { outline_id: q.id, section_id: section_id }
         = render("admin/loans/questionnaires/progress", object: @response_set.response(q), display_pct: false)
         / div class="outline-toggle #{ has_children ? "arrow-right" : ""}"

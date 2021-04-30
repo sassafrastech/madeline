@@ -103,22 +103,6 @@ class Loan < Project
     {status: 'active', country: 'all'}
   end
 
-  def self.filter_by_params(params)
-    params.reverse_merge! self.default_filter
-    scoped = self.all
-    scoped = scoped.status(params[:status]) if params[:status] != 'all'
-
-    if params[:division] != 'all'
-      division_ids = Division.find_by(short_name: params[:division])&.self_and_descendants&.select(&:public?)&.map(&:id)
-    else
-      division_ids = Division.root.descendants.select(&:public?)&.map(&:id)
-    end
-
-    scoped = scoped.where(division: division_ids)
-
-    scoped
-  end
-
   def self.txn_mode_choices
     TXN_MODES
   end
@@ -165,6 +149,10 @@ class Loan < Project
 
   def display_currency
     currency ? currency.try(:name) : ''
+  end
+
+  def images
+    media.where(kind_value: "image")
   end
 
   def location

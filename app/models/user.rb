@@ -48,15 +48,18 @@ class User < ApplicationRecord
   end
 
   def accessible_divisions
-    division_scope.resolve
+    Division.where(id: accessible_division_ids)
   end
 
+  # This merges in child divisions of the divisions for which a user has been specifically
+  # granted access.
   def accessible_division_ids
-    division_scope.accessible_ids
-  end
-
-  def division_scope
-    DivisionPolicy::Scope.new(self, Division)
+    base_ids = roles.where(resource_type: :Division, name: [:member, :admin]).pluck(:resource_id).uniq
+    all_ids = base_ids.map do |id|
+      division = Division.find_safe(id)
+      division.self_and_descendants.pluck(:id) if division
+    end
+    all_ids.flatten.uniq.compact
   end
 
   def default_division
@@ -74,14 +77,10 @@ class User < ApplicationRecord
     profile.try(:division_id)
   end
 
-  def has_some_access?
-    division_scope.base_accessible_ids.present?
-  end
-
   # Require a user to have access to at least some division in order to login.
   # Note, this avoids needing to worry about a nil current_division in the controller logic.
   def active_for_authentication?
-    profile && profile.has_system_access? && has_some_access?
+    profile && profile.has_system_access? && self.accessible_division_ids.present?
   end
 
   def inactive_message

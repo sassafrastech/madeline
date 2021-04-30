@@ -89,20 +89,6 @@ Rails.application.configure do
     enable_starttls_auto: true,
   }
 
-  # For wordpress template
-  config.x.wordpress_template = {
-    base_uri: {
-      us: 'https://theworkingworld.org',
-      argentina: 'https://labase.org',
-      nicaragua: 'https://labase.org',
-    },
-    template_paths: { # url of blank wordpress page for rails to retrieve
-      us: '/us/rails',
-      argentina: '/argentina/rails',
-      nicaragua: '/nicaragua/rails',
-    }
-  }
-
   #todo: remove once the cause of this is sorted out.
   ## beware, for now this seems to be required for proper rendering of co-op view.  (without, view contents is all html escaped)
   Slim::Engine.set_options pretty: true, sort_attrs: false

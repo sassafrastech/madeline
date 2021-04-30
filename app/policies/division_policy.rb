@@ -5,7 +5,7 @@ class DivisionPolicy < ApplicationPolicy
   end
 
   def show?
-    division_member_or_admin(division: @record)
+    user ? division_member_or_admin(division: @record) : @record.public
   end
 
   def create?
@@ -14,7 +14,7 @@ class DivisionPolicy < ApplicationPolicy
 
   def update?
     division_admin(division: @record) &&
-      !@record.root?  # Root division is considered read-only.
+      !@record.root? # Root division is considered read-only.
   end
 
   # Note, for now we disallow deletion of divisions which have any organizations, loans, people,
@@ -33,26 +33,27 @@ class DivisionPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      user ? scope.where(id: accessible_ids) : scope.published
-    end
-
-    # This merges in child divisions of the divisions for which a user has been specifically
-    # granted access.
-    def accessible_ids
-      all_ids = base_accessible_ids.map do |id|
-        division = Division.find_safe(id)
-        division.self_and_descendants.pluck(:id) if division
+      if user
+        resolve_admin
+      else
+        resolve_public
       end
-      all_ids.flatten.uniq.compact
     end
 
-    # List of division hierarchy nodes for which user has been granted access.
-    def base_accessible_ids
-      user.roles.where(resource_type: :Division, name: [:member, :admin]).pluck(:resource_id).uniq
+    def resolve_admin
+      scope.where(id: user.accessible_division_ids)
+    end
+
+    def resolve_public
+      scope.published
     end
 
     def accessible_divisions(public_only: false)
-      public_only ? Division.published : user.accessible_divisions
+      if public_only
+        resolve_public
+      else
+        resolve_admin
+      end
     end
   end
 end

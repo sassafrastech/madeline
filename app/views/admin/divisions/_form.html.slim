@@ -72,6 +72,19 @@
     = documentation_popover(@documentations_by_html,
       html_identifier: "#{form_identifier}_public", options: popover_options)
 
+  - if @division.public?
+      = f.input :public_url
+        - public_url = public_division_url(short_name: @division.short_name)
+        .form-element.read-only
+          = link_to(public_url, public_url)
+          = content_tag(:a, tabindex: 0, data: { content: t('admin.divisions.form.public_url_info')}, class: 'ms-popover')
+            span.icon-box= icon_tag("question-circle")
+        .view-element
+          = link_to(public_url, public_url)
+          = content_tag(:a, tabindex: 0, data: { content: t('admin.divisions.form.public_url_info')}, class: 'ms-popover')
+            span.icon-box= icon_tag("question-circle")
+
+
   = f.input :logo
     .view-element
       - if @division.logo.present?

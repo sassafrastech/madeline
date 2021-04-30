@@ -26,31 +26,6 @@ module AdminHelper
     }
   end
 
-  def admin_custom_colors
-    return @admin_custom_colors if @admin_custom_colors
-    colors = {}
-    colors[:banner_fg] = selected_division && selected_division.banner_fg_color || "white"
-    colors[:banner_bg] = selected_division && selected_division.banner_bg_color || "#8C2426"
-    colors[:accent_main] = selected_division && selected_division.accent_main_color || colors[:banner_bg]
-    colors[:accent_fg_text] = selected_division && selected_division.accent_fg_color || colors[:banner_fg]
-
-    # These two colors are derived from the user configurable ones using the Chroma gem.
-    colors[:accent_darkened] = begin
-      colors[:accent_main].paint.darken(5)
-    rescue Chroma::Errors::UnrecognizedColor
-      colors[:accent_main]
-    end
-
-    colors[:banner_fg_transp] = begin
-      # Add alpha channel
-      colors[:banner_fg].paint.tap { |c| c.rgb.a = 0.3 }.to_rgb
-    rescue Chroma::Errors::UnrecognizedColor
-      colors[:banner_fg]
-    end
-
-    @admin_custom_colors = colors
-  end
-
   # This should be updated whenever columns are added/removed to the timeline table
   def timeline_table_step_column_count
     8

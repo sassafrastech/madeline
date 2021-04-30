@@ -36,20 +36,6 @@ Rails.application.configure do
   # Raises helpful error messages.
   config.assets.raise_runtime_errors = true
 
-  # For wordpress template
-  config.x.wordpress_template = {
-    base_uri: {
-      us: 'https://theworkingworld.org',
-      argentina: 'https://labase.org',
-      nicaragua: 'https://labase.org',
-    },
-    template_paths: { # url of blank wordpress page for rails to retrieve
-      us: '/us/rails',
-      argentina: '/argentina/rails',
-      nicaragua: '/nicaragua/rails',
-    },
-  }
-
   # Raises error for missing translations
   config.action_view.raise_on_missing_translations = false
 

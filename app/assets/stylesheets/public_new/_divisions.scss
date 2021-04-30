@@ -1,0 +1,49 @@
+$edge-margin: calc(10vw);
+$row-padding: calc(5vh);
+
+.public-header {
+  background: var(--custom-bg-color);
+  color: var(--custom-fg-color);
+  font-size: xx-large;
+  font-weight: bolder;
+  padding: 0.4em 0;
+}
+
+.logo-grid {
+  display: grid;
+  grid-template-columns: minmax(auto, 42px) auto;
+  margin: 0 $edge-margin;
+}
+
+.division-name {
+  margin-top: -0.15em;
+}
+
+.description {
+  color: var(--custom-fg-color);
+  font-size: small;
+}
+
+.public-container {
+  color: var(--custom-fg-color);
+  display: grid;
+  margin: 0 $edge-margin;
+
+  .public-row {
+    border-bottom: 1px solid var(--custom-fg-color);
+    padding: $row-padding 0;
+  }
+}
+
+.loan-row {
+  .featured-image {
+    display: inline-block;
+    float: left;
+    padding: 0 3% 3% 0;
+  }
+
+  .loan-summary {
+    display: inline-block;
+    float: left;
+  }
+}

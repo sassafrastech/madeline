@@ -1,0 +1,8 @@
+en:
+  public:
+    divisions:
+      loan_header: "Loans"
+      not_authorized: "You are not authorized to view this division."
+    loans:
+      amount: "Loan amount"
+      signing_date: "Signing date"

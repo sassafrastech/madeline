@@ -39,14 +39,4 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
-
-  # For wordpress template
-  config.x.wordpress_template = {
-    base_uri: {
-      us: 'http://madeline.test'
-    },
-    template_paths: { # url of blank wordpress page for rails to retrieve
-      us: '/wordpress/rails_template',
-    },
-  }
 end

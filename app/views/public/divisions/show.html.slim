@@ -1,0 +1,24 @@
+.public-header
+  .logo-grid
+    .ftc-triple-spiral
+    .division-name
+      = @division.name
+.public-container
+  .public-row.description
+    = @division.description
+  .public-row
+    h1 =t("public.divisions.loan_header")
+  - @loans.each do |loan|
+    .public-row.loan-row
+      - images = loan.images
+      - if images
+        - if featured_image = images.find_by(featured: true)
+          .featured-image
+            = media_thumbnail(featured_image)
+        .loan-summary
+          h4= loan.display_name
+          p= "#{t("public.loans.amount")}: #{format_currency(loan.amount, loan.currency, tooltip: false) if loan.amount && loan.currency}"
+          p= "#{t("public.loans.signing_date")}: #{ldate(loan.signing_date)}"
+
+  .public-row
+    = paginate @loans

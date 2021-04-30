@@ -177,9 +177,14 @@ class Division < ApplicationRecord
   end
 
   def generate_short_name
-    return if short_name.present? && Division.pluck(:short_name).exclude?(self.short_name)
+    # no change to short_name that is already saved and therefore uniq
+    return if self.short_name.present? && self.short_name == self.attribute_in_database(:short_name)
 
-    self.short_name = name.parameterize
+    # manual change to new uniq short name
+    return if self.short_name.present? && Division.pluck(:short_name).exclude?(self.short_name)
+
+    # shortname not provided or provided shortname is not uniq
+    self.short_name ||= name.parameterize
     self.short_name = "#{self.short_name}-#{SecureRandom.uuid}" if Division.pluck(:short_name).include?(self.short_name)
   end
 end

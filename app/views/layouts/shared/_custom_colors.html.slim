@@ -3,17 +3,20 @@
 / Most of the below are copied from Bootstrap by looking for things that are default color and copying
 / the style rules from the inspector.
 
-- colors = admin_custom_colors # Helper method
+- colors = custom_colors # Helper method
 
 style type="text/css"
 
-
   | /* For customizing */
-    .custom_dark_accent {
-      color: #{colors[:accent_darkened]};
+    :root {
+      --custom-fg-color: #{colors[:banner_fg]};
+      --custom-bg-color: #{colors[:banner_bg]};
+      --custom-accent-main: #{colors[:accent_main]};
+      --custom-accent-darkened: #{colors[:accent_darkened]};
     }
-    
-   /* General links */
+
+
+    /* General links */
     a,
     .btn-link,
     .table.rowlink td:not(.rowlink-skip) a,

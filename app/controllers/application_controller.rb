@@ -24,17 +24,7 @@ class ApplicationController < ActionController::Base
   end
 
   def user_not_authorized
-    path = Rails.application.routes.recognize_path(request.env['PATH_INFO'])
-    path_controller = path[:controller]
-    path_action = path[:action]
-
-    # Public loan pages have a different error message
-    if path_controller == "public/loans" && path_action == "show"
-      flash[:error] = t('loan.public.not_authorized')
-    else
-      flash[:error] = t('unauthorized_error')
-    end
-
+    flash[:error] = t('unauthorized_error')
     render("application/error_page", status: 401)
   end
 

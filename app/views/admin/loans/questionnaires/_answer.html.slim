@@ -1,4 +1,4 @@
-.not-applicable.custom_dark_accent
+.not-applicable
   - if response.not_applicable?
     .view-element.answer = t("loan.not_applicable")
 
@@ -102,7 +102,7 @@
     = render 'admin/loans/questionnaires/business_model_canvas', f: f,
       question: question, data: response.business_canvas
 - if display_context != "summary" && !response.group? && response.blank? && question.required?
-  .view-element.answer.blank.custom_dark_accent
+  .view-element.answer.blank
     = fa_icon "exclamation-circle"
     = t("questions.missing_required_answer")
 

@@ -99,6 +99,7 @@ section.questionnaires {
   }
 
   .help-block {
+    color: var(--custom-accent-darkened);
     display: inherit; // in most forms, help blocks are hidden in show-view mode
     font-style: italic;
     font-size: $help-text-font-size;
@@ -156,6 +157,7 @@ section.questionnaires {
     }
 
     &.blank{
+      color: var(--custom-accent-darkened);
       .fa {
         font-size: 1em;
         padding-right: 5px;
@@ -195,6 +197,7 @@ section.questionnaires {
   }
 
   .not-applicable {
+    color: var(--custom-accent-darkened);
     font-style: italic;
 
     label {
