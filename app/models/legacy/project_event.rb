@@ -43,7 +43,7 @@ module Legacy
         agent_id: agent_id,
         is_finalized: (finalized == 1),
         step_type_value: MIGRATION_TYPE_OPTIONS.value_for(type),
-        summary_es: summary,
+        summary: summary,
         scheduled_start_date: date,
         actual_end_date: completed,
         scheduled_duration_days: duration == 0 ? 1 : duration,
@@ -76,7 +76,7 @@ module Legacy
     end
 
     MIGRATION_TYPE_OPTIONS = TransientOptionSet.new(
-        [ [:milestone, 'Paso'],
+        [ [:checkin, 'Paso'],
           [:agenda, 'Agenda'], # note, agenda items not currently scoped for migration
         ]
     )
