@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_19_192702) do
+ActiveRecord::Schema.define(version: 2021_05_10_132009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -238,6 +238,7 @@ ActiveRecord::Schema.define(version: 2021_04_19_192702) do
     t.integer "item_height"
     t.integer "item_width"
     t.string "kind_value"
+    t.integer "legacy_id"
     t.integer "media_attachable_id"
     t.string "media_attachable_type"
     t.integer "sort_order"
@@ -339,6 +340,7 @@ ActiveRecord::Schema.define(version: 2021_04_19_192702) do
     t.datetime "created_at", null: false
     t.date "date"
     t.date "date_changed_to"
+    t.integer "legacy_id"
     t.string "progress_metric_value"
     t.integer "project_step_id"
     t.datetime "updated_at", null: false
@@ -458,6 +460,7 @@ ActiveRecord::Schema.define(version: 2021_04_19_192702) do
     t.integer "date_change_count", default: 0, null: false
     t.datetime "finalized_at"
     t.boolean "is_finalized"
+    t.integer "legacy_id"
     t.integer "old_duration_days", default: 0
     t.date "old_start_date"
     t.integer "parent_id"

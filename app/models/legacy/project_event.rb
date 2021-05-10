@@ -39,6 +39,7 @@ module Legacy
     # The Argentina data did not use groups or dependent dates.
     def migration_data
       {
+        legacy_id: id,
         project_id: loan_id,
         agent_id: agent_id,
         is_finalized: (finalized == 1),

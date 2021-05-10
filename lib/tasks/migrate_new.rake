@@ -2,6 +2,8 @@
 
 namespace :tww do
   task :migrate_new => :environment do
+    Rake::Task['db:migrate'].invoke
+
     I18n.locale = :es
     DIV_IDS = [2, 4, 13]
     OUTSIDE_MEMBER_IDS = [2, 62, 91, 133]
