@@ -3,6 +3,7 @@
 dropdb madeline_migration
 createdb madeline_migration
 ssh madeline-prod "sudo -u postgres pg_dump madeline_system_production" | psql madeline_migration
+bundle exec rake db:migrate
 
 mysqladmin -u root -f drop tww_rails
 mysqladmin -u root create tww_rails
