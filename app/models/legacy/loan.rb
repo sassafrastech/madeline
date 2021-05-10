@@ -102,7 +102,7 @@ module Legacy
 
     def loan_type_option_value
       value = ::Loan.loan_type_option_set.value_for_migration_id(loan_type)
-      if value == 0
+      if value == 0 || value == "0"
         value = ::Loan.loan_type_option_set.value_for_migration_id(1)
         Migration.skip_log << ["Loan", id, "Loan type was '0', set to 'Liquidity LoC' as a default"]
       end
