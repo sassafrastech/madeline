@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_10_132009) do
+ActiveRecord::Schema.define(version: 2021_05_10_195313) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -239,6 +239,7 @@ ActiveRecord::Schema.define(version: 2021_05_10_132009) do
     t.integer "item_width"
     t.string "kind_value"
     t.integer "legacy_id"
+    t.string "legacy_path"
     t.integer "media_attachable_id"
     t.string "media_attachable_type"
     t.integer "sort_order"
