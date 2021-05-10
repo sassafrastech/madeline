@@ -9,15 +9,16 @@ module Legacy
     DONT_UPDATE_MADELINE_IDS = [2, 1577]
 
     def self.migrate_all
-      person = Person.create!(
-        first_name: "Unknown",
-        last_name: "2018 User",
-        name: "Unknown 2018 User",
-        legacy_id: 274,
-        country_id: Country.find_by(name: "Argentina").id,
-        division_id: 4
-      )
-      id_map[274] = person.id
+      if !Person.find_by(legacy_id: 274)
+        Person.create!(
+          first_name: "Unknown",
+          last_name: "2018 User",
+          name: "Unknown 2018 User",
+          legacy_id: 274,
+          country_id: Country.find_by(name: "Argentina").id,
+          division_id: 4
+        )
+      end
       super
     end
 
@@ -69,7 +70,6 @@ module Legacy
         pp data
         person = Person.create!(data)
       end
-      self.class.id_map[id] = person.id
     end
   end
 end

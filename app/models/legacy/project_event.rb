@@ -18,8 +18,8 @@ module Legacy
         Migration.skip_log << ["ProjectEvent", id, "Nullified agent_id b/c member #{member_id} not found"]
         nil
       else
-        if Person.where(id: Member.id_map[member_id]).any?
-          Member.id_map[member_id]
+        if (person = Person.find_by(legacy_id: member_id))
+          person.id
         else
           Migration.unexpected_errors << "Person not found for MemberId: #{member_id} on Step #{id}"
           nil
@@ -68,7 +68,6 @@ module Legacy
       data = migration_data
       pp data
       step = ::ProjectStep.create!(data)
-      self.class.id_map[id] = step.id
     end
 
     def find_or_create_parent_group

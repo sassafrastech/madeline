@@ -25,10 +25,6 @@ module LegacyModel
   end
 
   module ClassMethods
-    def id_map
-      @id_map ||= {}
-    end
-
     def migratable
       all
     end
