@@ -2,13 +2,9 @@
 
 namespace :tww do
   task :migrate_new => :environment do
-    Rake::Task['db:migrate'].invoke
-
     I18n.locale = :es
     DIV_IDS = [2, 4, 13]
     OUTSIDE_MEMBER_IDS = [2, 62, 91, 133]
-    loan_ids = nil
-    event_ids = nil
 
     @last_successful = begin
       File.read("tmp/migration_dumps/last_successful.txt").strip
@@ -30,20 +26,20 @@ namespace :tww do
         .or(Legacy::Member.where(id: OUTSIDE_MEMBER_IDS)).migrate_all
     end
 
+    loans = Legacy::Loan.where(source_division: DIV_IDS)
     txn_and_dump("loans") do
-      loans = Legacy::Loan.where(source_division: DIV_IDS)
       loans.migrate_all
-      loan_ids = loans.pluck(:id)
     end
+    loan_ids = loans.pluck(:id)
 
+    events = Legacy::ProjectEvent.where(project_id: loan_ids)
     txn_and_dump("steps") do
-      events = Legacy::ProjectEvent.where(project_id: loan_ids)
       events.migrate_all
-      event_ids = events.pluck(:id)
     end
+    event_ids = events.pluck(:id)
 
+    logs = Legacy::ProjectLog.where(project_id: loan_ids)
     txn_and_dump("logs") do
-      logs = Legacy::ProjectLog.where(project_id: loan_ids)
       logs.migrate_all
     end
   end
@@ -81,6 +77,6 @@ namespace :tww do
     puts "Importing dump"
     `psql madeline_migration < tmp/migration_dumps/post_#{name}.sql`
     puts "Running Rails migrations"
-    `bundle exec rake db:migrate`
+    `ANNOTATE_SKIP_ON_DB_MIGRATE=1 bundle exec rake db:migrate`
   end
 end
