@@ -6,7 +6,7 @@ module Legacy
     establish_connection :legacy
     include LegacyModel
 
-    NULLIFY_MEMBER_IDS = [0, 274]
+    NULLIFY_MEMBER_IDS = [0]
 
     def self.migratable
       where("ProjectTable NOT IN ('BasicProjects', 'ProjectTemplates')")

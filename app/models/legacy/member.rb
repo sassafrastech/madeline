@@ -8,6 +8,19 @@ module Legacy
 
     DONT_UPDATE_MADELINE_IDS = [2, 1577]
 
+    def self.migrate_all
+      person = Person.create!(
+        first_name: "Unknown",
+        last_name: "2018 User",
+        name: "Unknown 2018 User",
+        legacy_id: 274,
+        country_id: Country.find_by(name: "Argentina").id,
+        division_id: 4
+      )
+      id_map[274] = person.id
+      super
+    end
+
     def division
       if username == 'brendan'
         ::Division.root
