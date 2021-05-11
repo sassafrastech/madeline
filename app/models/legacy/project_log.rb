@@ -62,10 +62,12 @@ module Legacy
           ::ProjectLog.progress_metric_option_set.value_for_migration_id(progress_metric),
         date: date
       }
-      data[:summary] = explanation.strip if explanation&.strip.present?
-      data[:details] = detailed_explanation.strip if detailed_explanation&.strip.present?
-      data[:additional_notes] = additional_notes.strip if additional_notes&.strip.present?
-      data[:private_notes] = notas_privadas.strip if notas_privadas&.strip.present?
+
+      copy_translations(data, from: :explanation, to: :summary)
+      copy_translations(data, from: :detailed_explanation, to: :details)
+      copy_translations(data, from: :additional_notes, to: :additional_notes)
+      copy_translations(data, from: %i[notas_privadas notas_privados], to: :private_notes)
+
       data
     end
 

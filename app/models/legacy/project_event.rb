@@ -38,7 +38,7 @@ module Legacy
 
     # The Argentina data did not use groups or dependent dates.
     def migration_data
-      {
+      data = {
         legacy_id: id,
         project_id: loan_id,
         agent_id: agent_id,
@@ -50,6 +50,11 @@ module Legacy
         scheduled_duration_days: duration == 0 ? 1 : duration,
         parent: find_or_create_parent_group
       }
+
+      copy_translations(data, from: :summary, to: :summary)
+      copy_translations(data, from: :details, to: :details)
+
+      data
     end
 
     def migrate

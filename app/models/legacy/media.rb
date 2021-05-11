@@ -46,7 +46,7 @@ module Legacy
     end
 
     def migration_data
-      {
+      data = {
         legacy_id: id,
         legacy_path: media_path,
         media_attachable_type: TYPE_MAP[context_table],
@@ -56,6 +56,11 @@ module Legacy
         item: Rails.root.join("tmp", "placeholder.txt").open,
         kind_value: "document" # to be set post-migration when files copied
       }
+
+      copy_translations(data, from: :caption, to: :caption)
+      copy_translations(data, from: :description, to: :description)
+
+      data
     end
 
     def migrate

@@ -25,15 +25,11 @@ module Legacy
       secondary_id = Person.find_by(legacy_id: nil_if_zero(second))&.id
       secondary_id = nil if primary_id == secondary_id
 
-      {
+      data = {
         id: id,
         division_id: source_division,
         organization_id: nil_if_zero(cooperative_id),
         name: name,
-        summary_es: short_description&.strip.presence,
-        details_es: description&.strip.presence,
-        summary_en: short_description_english&.strip.presence,
-        details_en: description_english&.strip.presence,
         primary_agent_id: primary_id,
         secondary_agent_id: secondary_id,
         status_value: status_option_value,
@@ -50,6 +46,13 @@ module Legacy
         projected_end_date: fecha_de_finalizacion,
         projected_return: projected_return
       }
+
+      copy_translations(data, from: :short_description, to: :summary,
+                              local_source: {en: "ShortDescriptionEnglish", es: "ShortDescription"})
+      copy_translations(data, from: :description, to: :details,
+                              local_source: {en: "DescriptionEnglish", es: "Description"})
+
+      data
     end
 
     def org_snapshot_data

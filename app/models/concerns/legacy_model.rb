@@ -35,4 +35,38 @@ module LegacyModel
       migratable.find_each(&:migrate)
     end
   end
+
+  def copy_translations(data, from:, to:, local_source: nil)
+    from = Array.wrap(from)
+    %i[en es].each do |locale|
+      local =
+        if local_source
+          self[local_source[locale]]
+        elsif locale == I18n.locale
+          self[from.first]
+        else
+          nil
+        end
+      local = local&.strip.presence
+      remotes = from.map { |c| lookup_translation(locale, c) }.compact
+      puts "#{self.class.table_name} #{from.first} #{locale} #{id}: '#{local}' #{remotes}"
+      all = (remotes << local).compact.uniq
+      if all.size > 1
+        Legacy::Migration.unexpected_errors << "Multiple non-unique translations defined for "\
+          " #{self.class.table_name} #{from.first} #{locale} #{id}, taking longest"
+        all.sort_by!(&:size)
+      end
+      data[:"#{to}_#{locale}"] = all.last if all.any?
+    end
+  end
+
+  def lookup_translation(locale, col_name)
+    translation = Legacy::Translation.find_by(
+      remote_id: id,
+      remote_table: self.class.table_name,
+      remote_column_name: col_name.to_s.camelize,
+      language: locale == :en ? 1 : 2
+    )
+    translation&.translated_content&.strip.presence
+  end
 end
