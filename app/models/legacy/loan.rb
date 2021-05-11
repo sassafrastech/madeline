@@ -21,8 +21,8 @@ module Legacy
     end
 
     def migration_data
-      primary_id = Person.find_by(legacy_id: nil_if_zero(point_person)).id
-      secondary_id = Person.find_by(legacy_id: nil_if_zero(second)).id
+      primary_id = Person.find_by(legacy_id: nil_if_zero(point_person))&.id
+      secondary_id = Person.find_by(legacy_id: nil_if_zero(second))&.id
       secondary_id = nil if primary_id == secondary_id
 
       {
@@ -43,7 +43,7 @@ module Legacy
         amount: amount,
         rate: rate,
         length_months: length,
-        representative_id: Person.find_by(legacy_id: nil_if_zero(representative_id)).id,
+        representative_id: Person.find_by(legacy_id: nil_if_zero(representative_id))&.id,
         signing_date: signing_date,
         projected_first_interest_payment_date: first_interest_payment,
         projected_first_payment_date: first_payment_date,
