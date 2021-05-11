@@ -119,7 +119,7 @@ module Legacy
 
     def public_level_option_value
       # Default to Hidden if no value given in old DB
-      value = PUBLIC_LEVEL_OPTIONS.value_for(nivel_publico) || "Hidden"
+      value = PUBLIC_LEVEL_OPTIONS.value_for(nivel_publico) || "hidden"
       if value.nil?
         Migration.unexpected_errors << "No matching public_level_value found for #{nivel_publico}"
       end
