@@ -17,9 +17,11 @@ namespace :tww do
       Loan.where(division_id: DIV_IDS).destroy_all
     end
 
+    orgs = Legacy::Cooperative.where(country: 'Argentina')
     txn_and_dump("orgs") do
-      Legacy::Cooperative.where(country: 'Argentina').migrate_all
+      orgs.migrate_all
     end
+    org_ids = orgs.pluck(:id)
 
     txn_and_dump("people") do
       Legacy::Member.where(country: 'Argentina')
@@ -41,6 +43,15 @@ namespace :tww do
     logs = Legacy::ProjectLog.where(project_id: loan_ids)
     txn_and_dump("logs") do
       logs.migrate_all
+    end
+    log_ids = logs.pluck(:id)
+
+    all_media = Legacy::Media
+    media = all_media.where(context_table: "Cooperatives", context_id: org_ids)
+    media = media.or(all_media.where(context_table: "Loans", context_id: loan_ids))
+    media = media.or(all_media.where(context_table: "ProjectLogs", context_id: log_ids))
+    txn_and_dump("media") do
+      media.migrate_all
     end
   end
 
