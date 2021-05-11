@@ -49,11 +49,11 @@ module LegacyModel
         end
       local = local&.strip.presence
       remotes = from.map { |c| lookup_translation(locale, c) }.compact
-      puts "#{self.class.table_name} #{from.first} #{locale} #{id}: '#{local}' #{remotes}"
       all = (remotes << local).compact.uniq
       if all.size > 1
-        Legacy::Migration.unexpected_errors << "Multiple non-unique translations defined for "\
-          " #{self.class.table_name} #{from.first} #{locale} #{id}, taking longest"
+        class_name = self.class.name.split('::')[-1]
+        Legacy::Migration.skip_log << [class_name, id, "Multiple non-unique translations defined for "\
+          " #{locale.upcase} #{from.first}, taking longest"]
         all.sort_by!(&:size)
       end
       data[:"#{to}_#{locale}"] = all.last if all.any?
