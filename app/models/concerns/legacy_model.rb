@@ -25,11 +25,48 @@ module LegacyModel
   end
 
   module ClassMethods
-
-    def malformed_date_clause(field)
-      " not (#{field} is not null and dayofmonth(#{field}) = 0 and month(#{field}) > 0)"
+    def migratable
+      all
     end
 
+    def migrate_all
+      puts "---------------------------------------------------------"
+      puts "#{name}: #{migratable.count}"
+      migratable.find_each(&:migrate)
+    end
   end
 
+  def copy_translations(data, from:, to:, local_source: nil)
+    from = Array.wrap(from)
+    %i[en es].each do |locale|
+      local =
+        if local_source
+          self[local_source[locale]]
+        elsif locale == I18n.locale
+          self[from.first]
+        else
+          nil
+        end
+      local = local&.strip.presence
+      remotes = from.map { |c| lookup_translation(locale, c) }.compact
+      all = (remotes << local).compact.uniq
+      if all.size > 1
+        class_name = self.class.name.split('::')[-1]
+        Legacy::Migration.skip_log << [class_name, id, "Multiple non-unique translations defined for "\
+          " #{locale.upcase} #{from.first}, taking longest"]
+        all.sort_by!(&:size)
+      end
+      data[:"#{to}_#{locale}"] = all.last if all.any?
+    end
+  end
+
+  def lookup_translation(locale, col_name)
+    translation = Legacy::Translation.find_by(
+      remote_id: id,
+      remote_table: self.class.table_name,
+      remote_column_name: col_name.to_s.camelize,
+      language: locale == :en ? 1 : 2
+    )
+    translation&.translated_content&.strip.presence
+  end
 end

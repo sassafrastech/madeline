@@ -1,145 +1,145 @@
 # -*- SkipSchemaAnnotations
 module Legacy
+  class Loan < ApplicationRecord
+    establish_connection :legacy
+    include LegacyModel
 
-class Loan < ApplicationRecord
-  establish_connection :legacy
-  include LegacyModel
+    AGENTINIAN_PESO_ID = 1
+    LOANS_WITH_NO_COOP = [262, 1517, 10273]
+    LOANS_WITH_NO_LOAN_TYPE = [1515, 1517]
 
-  belongs_to :cooperative, :foreign_key => 'CooperativeID'
-  belongs_to :division, :foreign_key => 'SourceDivision'
+    belongs_to :cooperative, :foreign_key => 'CooperativeID'
+    belongs_to :division, :foreign_key => 'SourceDivision'
 
-  def currency
-    @currency ||= division.ensure_country.default_currency
-  end
+    def currency
+      @currency ||= division.ensure_country.default_currency
+    end
 
-  # beware, there are a lot of invalid '0' foreign key refs in the legacy data
-  def nil_if_zero(val)
-    val == 0 ? nil : val
-  end
+    # beware, there are a lot of invalid '0' foreign key refs in the legacy data
+    def nil_if_zero(val)
+      val == 0 ? nil : val
+    end
 
-  def migration_data
-    data = {
-        id: self.id,
+    def migration_data
+      primary_id = Person.find_by(legacy_id: nil_if_zero(point_person))&.id
+      secondary_id = Person.find_by(legacy_id: nil_if_zero(second))&.id
+      secondary_id = nil if primary_id == secondary_id
+
+      data = {
+        id: id,
         division_id: source_division,
         organization_id: nil_if_zero(cooperative_id),
         name: name,
-        # handled directly via Translations table
-        # summary: short_description.translated_content,
-        # details: description.translated_content,
-        primary_agent_id: nil_if_zero(point_person),
-        secondary_agent_id: nil_if_zero(second),
+        primary_agent_id: primary_id,
+        secondary_agent_id: secondary_id,
         status_value: status_option_value,
         loan_type_value: loan_type_option_value,
         public_level_value: public_level_option_value,
-        currency_id: currency.id,
+        currency_id: AGENTINIAN_PESO_ID,
         amount: amount,
         rate: rate,
         length_months: length,
-        representative_id: nil_if_zero(representative_id),
+        representative_id: Person.find_by(legacy_id: nil_if_zero(representative_id))&.id,
         signing_date: signing_date,
-        first_interest_payment_date: first_interest_payment,
-        first_payment_date: first_payment_date,
-        end_date: fecha_de_finalizacion,
-        projected_return: projected_return,
-    }
-    data
-  end
+        projected_first_interest_payment_date: first_interest_payment,
+        projected_first_payment_date: first_payment_date,
+        projected_end_date: fecha_de_finalizacion,
+        projected_return: projected_return
+      }
 
-  def org_snapshot_data
-    data = {
-      cooperative_members: cooperative_members,
-      poc_ownership_percent: poc_ownership,
-      women_ownership_percent: women_ownership,
-      environmental_impact_score: environmental_impact
-    }
-    data
-  end
+      copy_translations(data, from: :short_description, to: :summary,
+                              local_source: {en: "ShortDescriptionEnglish", es: "ShortDescription"})
+      copy_translations(data, from: :description, to: :details,
+                              local_source: {en: "DescriptionEnglish", es: "Description"})
 
-  def migrate
-    data = migration_data
-    # puts "#{data[:id]}: #{data[:name]}"
-    loan = ::Loan.find_or_create_by(id: data[:id])
-    loan.update!(data)
-  rescue StandardError => e
-    $stderr.puts "#{self.class.name}[#{id}] error migrating loan: #{e} - skipping"
-  end
+      data
+    end
 
-  def migrate_snapshot_data
-    data = org_snapshot_data
-    new_record = ::Loan.find(migration_data[:id])
-    if data.values.any?(&:present?)
-      new_record.create_criteria unless new_record.criteria
-      data.each do |key, val|
-        question = new_record.criteria.question(key)
-        new_record.criteria.set_response(question, number: val)
+    def org_snapshot_data
+      data = {
+        cooperative_members: cooperative_members,
+        poc_ownership_percent: poc_ownership,
+        women_ownership_percent: women_ownership,
+        environmental_impact_score: environmental_impact
+      }
+      data
+    end
+
+    def migrate
+      data = migration_data
+      if LOANS_WITH_NO_COOP.include?(data[:id])
+        Migration.skip_log << ["Loan", data[:id], "No coop"]
+        return
       end
-      new_record.criteria.save!
+      if LOANS_WITH_NO_LOAN_TYPE.include?(data[:id])
+        Migration.skip_log << ["Loan", data[:id], "No loan type"]
+        return
+      end
+      pp data
+      if ::Loan.find_by(id: data[:id])
+        Migration.unexpected_errors << "Loan #{data[:id]} exists!"
+      else
+        begin
+          ::Loan.create!(data)
+        rescue StandardError => e
+          Migration.unexpected_errors << e.to_s
+        end
+      end
     end
-  rescue StandardError => e
-    $stderr.puts "#{self.class.name}[#{id}] error migrating organization snapshot data: #{e} - skipping"
-  end
 
-  def name
-    # if self.cooperative then I18n.t :project_with, name: self.cooperative.Name
-    # else I18n.t :project_id, id: self.ID.to_s end
-    if self.cooperative
-      return I18n.t(:project_with, name: self.cooperative.Name)
-    else
-      return I18n.t(:project_id, id: self.ID)
+    def name
+      if cooperative
+        return I18n.t(:project_with, name: cooperative.Name.strip)
+      else
+        return I18n.t(:project_id, id: self.ID)
+      end
     end
+
+    def status_option_value
+      value = MIGRATION_STATUS_OPTIONS.value_for(nivel)
+      if value.nil?
+        Migration.unexpected_errors << "No matching status_value found for #{nivel}"
+      end
+      value
+    end
+
+    def loan_type_option_value
+      value =
+        if loan_type.to_s == "0"
+          ::Loan.loan_type_option_set.value_for_migration_id(1)
+          Migration.skip_log << ["Loan", id, "Loan type was '0', set to 'Liquidity LoC' as a default"]
+        else
+          ::Loan.loan_type_option_set.value_for_migration_id(loan_type)
+        end
+      if value.nil?
+        Migration.unexpected_errors << "No matching loan_type_value found for #{loan_type}"
+      end
+      value
+    end
+
+    def public_level_option_value
+      # Default to Hidden if no value given in old DB
+      value = PUBLIC_LEVEL_OPTIONS.value_for(nivel_publico) || "hidden"
+      if value.nil?
+        Migration.unexpected_errors << "No matching public_level_value found for #{nivel_publico}"
+      end
+      value
+    end
+
+    MIGRATION_STATUS_OPTIONS = Legacy::TransientOptionSet.new(
+        [ ['active', 'Prestamo Activo'],
+          ['completed', 'Prestamo Completo'],
+          ['frozen', 'Prestamo Congelado'],
+          ['liquidated', 'Prestamo Liquidado'],
+          ['prospective', 'Prestamo Prospectivo'],
+          ['refinanced', 'Prestamo Refinanciado'],
+          ['relationship', 'Relacion'],
+          ['relationship_active', 'Relacion Activo']
+        ])
+
+    PUBLIC_LEVEL_OPTIONS = Legacy::TransientOptionSet.new(
+        [ ['featured', 'Featured'],
+          ['hidden', 'Hidden'],
+        ])
   end
-
-  def self.migratable
-    all
-  end
-
-  def self.migrate_all
-    puts "loans: #{self.count}"
-    migratable.each &:migrate
-    ::Loan.recalibrate_sequence(gap: 1000)
-
-    puts "loan translations: #{ Legacy::Translation.where('RemoteTable' => 'Loans').count }"
-    Legacy::Translation.where('RemoteTable' => 'Loans').each &:migrate
-  end
-
-  def self.purge_migrated
-    puts "::Loan.delete_all"
-    ::Loan.delete_all
-  end
-
-
-  def status_option_value
-    MIGRATION_STATUS_OPTIONS.value_for(nivel)
-  end
-
-  def loan_type_option_value
-    ::Loan.loan_type_option_set.value_for_migration_id(loan_type)
-  end
-
-  def public_level_option_value
-    PUBLIC_LEVEL_OPTIONS.value_for(nivel_publico)
-  end
-
-
-
-  MIGRATION_STATUS_OPTIONS = Legacy::TransientOptionSet.new(
-      [ ['active', 'Prestamo Activo'],
-        ['completed', 'Prestamo Completo'],
-        ['frozen', 'Prestamo Congelado'],
-        ['liquidated', 'Prestamo Liquidado'],
-        ['prospective', 'Prestamo Prospectivo'],
-        ['refinanced', 'Prestamo Refinanciado'],
-        ['relationship', 'Relacion'],
-        ['relationship_active', 'Relacion Activo']
-      ])
-
-  PUBLIC_LEVEL_OPTIONS = Legacy::TransientOptionSet.new(
-      [ ['featured', 'Featured'],
-        ['hidden', 'Hidden'],
-      ])
-
-
-
-end
-
 end

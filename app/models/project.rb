@@ -123,23 +123,6 @@ class Project < ApplicationRecord
     name.blank? ? default_name : name
   end
 
-  # creates / reuses a default step when migrating ProjectLogs without a proper owning step
-  # beware, not at all optimized, but sufficient for migration.
-  # not sure if this will be useful beyond migration.  if so, perhaps worth better optimizing,
-  # if not, can remove once we're past the production migration process
-  def default_step
-    step = project_steps.select{|s| s.summary == DEFAULT_STEP_NAME}.first
-    unless step
-      # Could perhaps optimize this with a 'find_or_create_by', but would be tricky with the translatable 'summary' field,
-      # and it's nice to be able to log the operation.
-      logger.info {"default step not found for loan[#{id}] - creating"}
-
-      step = ProjectStep.new(project: self)
-      step.update(summary: DEFAULT_STEP_NAME)
-    end
-    step
-  end
-
   def agent_names
     [primary_agent.try(:name), secondary_agent.try(:name)].compact
   end

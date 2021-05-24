@@ -3,7 +3,7 @@ module Notable
 
   included do
     # notes that are added to organizations or people
-    has_many :notes, as: :notable
+    has_many :notes, as: :notable, dependent: :destroy
   end
 
   def add_note(text, author)

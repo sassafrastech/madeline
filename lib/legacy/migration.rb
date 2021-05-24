@@ -60,11 +60,5 @@ module Legacy
       Legacy::Cooperative.purge_migrated
       Legacy::Division.purge_migrated
     end
-
-    # def malformed_date_clause(field)
-    #   " not (#{field} is not null and dayofmonth(#{field}) = 0 and month(#{field}) > 0)"
-    # end
-
   end
-
 end
