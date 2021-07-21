@@ -22,7 +22,7 @@ module Accounting
         # Delete only global issues now before fetch phase but keep loan-specific
         # issues so that if fetch fails we still hide those loans' txn data appropriately.
         Accounting::SyncIssue.global.delete_all
-        started_update_at = Time.zone.current
+        started_update_at = Time.current
         qb_sync_for_loan_update
         if loans
           # check if loan is one object or multiple

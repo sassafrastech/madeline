@@ -6,7 +6,7 @@ class QuickbooksUpdateJob < QuickbooksJob
     # issues so that if fetch we still hide those loans' txn data appropriately.
     Accounting::SyncIssue.global.delete_all
     self.updater = Accounting::QB::Updater.new
-    started_update_at = Time.zone.current
+    started_update_at = Time.current
     updater.qb_sync_for_loan_update
     task.set_activity_message("syncing_with_quickbooks")
     loans.each_with_index do |loan, index|
