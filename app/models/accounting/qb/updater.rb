@@ -34,6 +34,7 @@ module Accounting
         # TODO: This is duplicated in QuickbooksUpdateJob and needs to be DRYed up.
         # We record last_updated_at as the time this update started. The user-prompted ways
         # the update is started are used by only admins and rarely.
+        Rails.logger.debug("Setting qb cnxn last_updated_at to #{started_update_at}"
         qb_connection.update_attribute(:last_updated_at, started_update_at)
       end
 
@@ -112,11 +113,11 @@ module Accounting
 
       def changes
         # assumes that after a new qb connection has been established, the FullFetcher will
-        # retrieve all data from qb and last_updated_at will have a value before updater runs.  
+        # retrieve all data from qb and last_updated_at will have a value before updater runs.
         unless last_updated_at && last_updated_at > max_updated_at
           raise DataResetRequiredError
         end
-
+        Rails.logger.debug("Calling to QB API to get changes since #{last_updated_at}")
         service.since(types, last_updated_at).all_types
       end
 

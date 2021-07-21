@@ -37,6 +37,7 @@ class QuickbooksUpdateJob < QuickbooksJob
     # TODO: This is duplicated in Updater#update and needs to be DRYed up.
     # We record last_updated_at as the time this update started. The user-prompted ways
     # the update is started are used by only admins and rarely.
+    Rails.logger.debug("Setting qb cnxn last_updated_at to #{started_update_at}"
     updater.qb_connection.update_attribute(:last_updated_at, started_update_at)
 
     # Even if there have been per-loan errors, we still consider the task completed.
