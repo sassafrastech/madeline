@@ -30,11 +30,11 @@ class Admin::Accounting::QuickbooksController < Admin::AdminController
       connection_attrs = {
         access_token: response.token,
         invalid_grant: false,
-        last_updated_at: connection.present? ? Time.current : nil,
         refresh_token: response.refresh_token,
         realm_id: params[:realmId],
         division: Division.root,
         token_expires_at: Time.zone.at(response.expires_at)
+        # last_updated_at is not updated, because no new accounting data pulled from qb
       }
       connection ||= Accounting::QB::Connection.new
       connection.update(connection_attrs)

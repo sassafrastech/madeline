@@ -30,7 +30,7 @@ module Accounting
       private
 
       def fetch_qb_data
-        started_fetch_at = Time.current
+        started_fetch_at = Time.zone.current
         ::Accounting::QB::TransactionClassFinder.new(division).find_by_name(::Accounting::Transaction::QB_PARENT_CLASS)
         ::Accounting::QB::CustomerFetcher.new(division).fetch
         ::Accounting::QB::AccountFetcher.new(division).fetch

@@ -73,8 +73,8 @@ class Accounting::QB::Connection < ApplicationRecord
       self.access_token = refreshed[:access_token]
       self.refresh_token = refreshed[:refresh_token]
       self.token_expires_at = Time.zone.at(refreshed[:expires_at])
-      self.last_updated_at = Time.current
       self.invalid_grant = false
+      # last_updated_at is not updated, because no new accounting data pulled from qb
       self.save!
       log_token_info("Successfully refreshed token")
       return true

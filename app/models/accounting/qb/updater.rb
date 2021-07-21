@@ -22,6 +22,7 @@ module Accounting
         # Delete only global issues now before fetch phase but keep loan-specific
         # issues so that if fetch fails we still hide those loans' txn data appropriately.
         Accounting::SyncIssue.global.delete_all
+        started_update_at = Time.zone.current
         qb_sync_for_loan_update
         if loans
           # check if loan is one object or multiple
@@ -30,14 +31,10 @@ module Accounting
             update_loan(loan)
           end
         end
-        # We record last_updated_at as the time the update *finishes* because last_updated_at
-        # is used to avoid runs that immediately follow each other as in the case of a transaction creation
-        # followed by a transaction listing. If we record the time the update *started* and the update
-        # takes some time, we would need to increase the MIN_TIME_BETWEEN_UPDATES value and that might
-        # make it frustrating for users who want to deliberately re-run the updater.
-        # The other function of last_updated_at is to check if a full sync needs to be run,
-        # but that condition is measured in days, not seconds, so this small a difference shouldn't matter.
-        qb_connection.update_attribute(:last_updated_at, Time.current)
+        # TODO: This is duplicated in QuickbooksUpdateJob and needs to be DRYed up.
+        # We record last_updated_at as the time this update started. The user-prompted ways
+        # the update is started are used by only admins and rarely.
+        qb_connection.update_attribute(:last_updated_at, started_update_at)
       end
 
       # Fetches all changes from Quickbooks since the last update.
@@ -114,6 +111,8 @@ module Accounting
       end
 
       def changes
+        # assumes that after a new qb connection has been established, the FullFetcher will
+        # retrieve all data from qb and last_updated_at will have a value before updater runs.  
         unless last_updated_at && last_updated_at > max_updated_at
           raise DataResetRequiredError
         end
@@ -156,7 +155,8 @@ module Accounting
       end
 
       def max_updated_at
-        1.year.ago - 1.minute
+        # based on oldest data since method will retrieve (https://github.com/ruckus/quickbooks-ruby)
+        30.days.ago
       end
 
       def last_updated_at
