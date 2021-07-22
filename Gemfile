@@ -67,7 +67,7 @@ gem "chronic" # For parsing human readable dates
 gem "exception_notification" # Send email on errors
 gem "goldiloader" # Eager loading
 gem "gon" # Passing controller data to JS
-gem "nokogiri", "= 1.10.10"
+gem "nokogiri", "1.11.4"
 gem "quickbooks-ruby", "= 1.0.10"
 gem "remotipart", "~> 1.2" # File uploads for remote: true forms
 gem "sassc-rails"
