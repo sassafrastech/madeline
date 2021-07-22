@@ -37,7 +37,7 @@ module Accounting
         ::Accounting::QB::TransactionFetcher.new(division).fetch
         ::Accounting::QB::DepartmentFetcher.new(division).fetch
         ::Accounting::QB::VendorFetcher.new(division).fetch
-        qb_connection.update_attribute(:last_updated_at, started_fetch_at)
+        qb_connection.update_last_updated_at(started_fetch_at)
       rescue StandardError => error
         delete_qb_data
         clear_division_accounts

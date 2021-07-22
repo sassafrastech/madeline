@@ -44,6 +44,11 @@ class Accounting::QB::Connection < ApplicationRecord
     Rails.logger.tagged(QB_AUTH_LOG_TAG) { Rails.logger.debug("#{message}:\n #{token_info}") }
   end
 
+  def update_last_updated_at(timestamp)
+    Rails.logger.debug("Setting qb cnxn last_updated_at to #{timestamp}")
+    self.update_attribute(:last_updated_at, timestamp)
+  end
+
   private
 
   def expired?
@@ -54,6 +59,7 @@ class Accounting::QB::Connection < ApplicationRecord
       false
     end
   end
+
 
   def refresh_token!
     log_token_info("About to refresh token")
@@ -73,8 +79,8 @@ class Accounting::QB::Connection < ApplicationRecord
       self.access_token = refreshed[:access_token]
       self.refresh_token = refreshed[:refresh_token]
       self.token_expires_at = Time.zone.at(refreshed[:expires_at])
-      self.last_updated_at = Time.current
       self.invalid_grant = false
+      # last_updated_at is not updated, because no new accounting data pulled from qb
       self.save!
       log_token_info("Successfully refreshed token")
       return true
