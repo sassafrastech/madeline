@@ -7,7 +7,7 @@ module Accounting
     class Updater
       attr_reader :qb_connection
 
-      MIN_TIME_BETWEEN_UPDATES = 5.seconds
+      MIN_TIME_BETWEEN_UPDATES = 5.minutes
 
       def initialize(qb_connection = Division.root.qb_connection)
         @qb_connection = qb_connection
