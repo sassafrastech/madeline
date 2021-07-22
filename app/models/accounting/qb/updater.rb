@@ -31,11 +31,7 @@ module Accounting
             update_loan(loan)
           end
         end
-        # TODO: This is duplicated in QuickbooksUpdateJob and needs to be DRYed up.
-        # We record last_updated_at as the time this update started. The user-prompted ways
-        # the update is started are used by only admins and rarely.
-        Rails.logger.debug("Setting qb cnxn last_updated_at to #{started_update_at}")
-        qb_connection.update_attribute(:last_updated_at, started_update_at)
+        qb_connection.update_last_updated_at(started_update_at)
       end
 
       # Fetches all changes from Quickbooks since the last update.

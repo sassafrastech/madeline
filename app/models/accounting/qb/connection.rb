@@ -44,6 +44,11 @@ class Accounting::QB::Connection < ApplicationRecord
     Rails.logger.tagged(QB_AUTH_LOG_TAG) { Rails.logger.debug("#{message}:\n #{token_info}") }
   end
 
+  def update_last_updated_at(timestamp)
+    Rails.logger.debug("Setting qb cnxn last_updated_at to #{timestamp}")
+    self.update_attribute(:last_updated_at, timestamp)
+  end
+
   private
 
   def expired?
@@ -54,6 +59,7 @@ class Accounting::QB::Connection < ApplicationRecord
       false
     end
   end
+
 
   def refresh_token!
     log_token_info("About to refresh token")
